@@ -37,18 +37,44 @@
 
 <div class="container-fluid">
     {% if grade > 80 %}
-    <div class="alert alert-success">
-       <!--HINT Display passed info -->
-    </div>
-        {% else %}
+        <div class="alert alert-success">
+            You passed the exam with {{ grade }}% ({{ earned_points }} of {{ total_points }} points).
+        </div>
+    {% else %}
         <div class="alert alert-danger">
-            <!--HINT Display failed info -->
+            You did not pass the exam. Your score was {{ grade }}%
+            ({{ earned_points }} of {{ total_points }} points).
         </div>
         <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
-        {% endif %}
-        <div class="card-columns-vertical mt-1">
-        <h5 class="">Exam results</h5>
-            <!--HINT Display exam results-->
+    {% endif %}
+    <div class="card-columns-vertical mt-1">
+        <h5>Exam results</h5>
+        {% for result in question_results %}
+            <div class="card mt-1">
+                <div class="card-header">
+                    <h5>{{ result.question.content }}</h5>
+                    <span>{{ result.points_earned }} / {{ result.question.grade }} points</span>
+                </div>
+                <div class="card-body">
+                    {% if result.is_correct %}
+                        <p class="text-success">Correct</p>
+                    {% else %}
+                        <p class="text-danger">Incorrect</p>
+                    {% endif %}
+                    {% for answer in result.choices %}
+                        <div>
+                            {% if answer.is_selected %}<strong>Your answer:</strong> {% endif %}
+                            {{ answer.choice.content }}
+                            {% if answer.choice.is_correct %}<span class="text-success">(Correct answer)</span>{% endif %}
+                        </div>
+                    {% empty %}
+                        <p>No choices were configured for this question.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p>This course has no exam questions.</p>
+        {% endfor %}
         </div>
     </div>
 </body>
